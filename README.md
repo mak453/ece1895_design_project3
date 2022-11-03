@@ -24,6 +24,6 @@ I've never worked with wireless electronics and would like to test myself with B
 Table of Pros/Cons that may lead to successful completion of all goals
 | Pros         | Cons |
 |--------------|:-----:|
-| <p> Chose all breakout components <p> No PCB designing <p> Plenty of sample software for sensors <p> Only doing READs from sensors| <p> Limited time (6 weeks) <p> First Motherboard choice out of order <p> Lots of coding to create a communication and data logger <p> No refined plans for casings of Wrist Tracker or Base | 
+| <p> Chose all breakout components <p> No PCB designing <p> Plenty of sample software for sensors <p> Only doing READs from sensors| <p> Limited time (6 weeks) <p> First Motherboard choice out of order <p> Lots of coding to create a communication and data logger <p> No refined plans for casings of Wrist Tracker or Base <p> Yellow button out of order| 
 
 
