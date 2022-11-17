@@ -26,4 +26,22 @@ Table of Pros/Cons that may lead to successful completion of all goals
 |--------------|:-----:|
 | <p> Chose all breakout components <p> No PCB designing <p> Plenty of sample software for sensors <p> Only doing READs from sensors| <p> Limited time (6 weeks) <p> First Motherboard choice out of order <p> Lots of coding to create a communication and data logger <p> No refined plans for casings of Wrist Tracker or Base <p> Yellow button out of order| 
 
+---
+
+## Update (11/17/2022)
+
+### Wrist Tracker
+DFRobot_Heartrate.cpp file modified because value to determine heart rate was too high and heart rate kept registering as 0 BPM (NOT REALISTIC)
+
+
+
+### Base Station
+
+| Task | Status | Notes/Future Planning |
+|------|--------|:---------------:|
+| Make Dashboard graphic |  Basic outline completed | Uses bitMaps to load images from SD cards |
+|Added basic user sleep score functionality| Updates Dashboard with sleep score, but does NOT store the value | Will need to figure out an efficient way to draw triangle for weekly sleep score without having to generate each image individually or can make a bunch of options and load onto SD card |
+| Purchased Ardiuno Mega clone |Awaiting shipment|Basic sketch for eInk display took up 83% of storage and needed to switch from ATMEGA328P to ATMEGA2560-16au. This increases the amount of sketch memory by about 8 times |
+
+
 

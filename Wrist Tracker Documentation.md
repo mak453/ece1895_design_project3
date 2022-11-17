@@ -38,5 +38,130 @@ Pins: 5V, GND, A5/SDA, A6/SLA
 
 ![Gyro/accel Pin Connections](https://raw.githubusercontent.com/DFRobot/DFRobotMediaWikiImage/master/Image/6_dof_mpu6050.png)  
 
+---
 
+## Code Overview
+
+---
+
+### Update (11/17/2022)
+Modified DFRobot_Heartrate Library because value too high to accurately detect heart rate
+
+Original:
+
+    uint16_t DFRobot_Heartrate::digitalGetRate  (void)
+    {
+        static uint8_t timeFlag;
+        static unsigned long sampleTime[10];
+        unsigned long valueTime_;
+        uint8_t count_;
+        
+        if(valueCount_){
+            count_ = valueCount_-1;
+        }else{
+            count_ = SAMPLE_NUMBER-1;
+        }
+        if((value[valueCount_]>1000)&&(value[count_]<20)){
+            nowTim = millis();
+            uint32_t difTime =  nowTim - lastTim;
+            lastTim = nowTim;
+            
+            if(difTime>300 || difTime<2000){
+                sampleTime[timeFlag++] = difTime;
+                if(timeFlag > 9)timeFlag=0;
+            }       
+            if(0 == sampleTime[9]){
+                Serial.println("Wait for valid data !");
+                return(0);
+            }
+
+            uint32_t Arrange[10]={0};
+            for(int i=0;i<10;i++){
+                Arrange[i] = sampleTime[i];
+            }
+            uint32_t Arrange_=0;
+            for(int i=9;i>0;i--){
+                for(int j=0;j<i;j++){
+                    if(Arrange[j] > Arrange[j+1]){
+                    Arrange_ = Arrange[j];
+                    Arrange[j] = Arrange[j+1];
+                    Arrange[j+1] = Arrange_;
+                    }
+                }
+            }
+            if((Arrange[7]-Arrange[3])>120){
+                Serial.println("Wait for valid data !");
+                return(0);
+            }
+
+            Arrange_ = 0;
+            for(int i=3;i<=7;i++){
+                Arrange_ += Arrange[i];
+            }
+
+            valueTime_ = 300000/Arrange_;   // 60*1000*(7-2)
+            return((uint16_t)valueTime_);
+        }
+        return(0);
+
+    }
+
+Modified:
+
+    uint16_t DFRobot_Heartrate::digitalGetRate  (void)
+    {
+        static uint8_t timeFlag;
+        static unsigned long sampleTime[10];
+        unsigned long valueTime_;
+        uint8_t count_;
+        
+        if(valueCount_){
+            count_ = valueCount_-1;
+        }else{
+            count_ = SAMPLE_NUMBER-1;
+        }
+        if((value[valueCount_]>800)&&(value[count_]<20)){
+            nowTim = millis();
+            uint32_t difTime =  nowTim - lastTim;
+            lastTim = nowTim;
+            
+            if(difTime>300 || difTime<2000){
+                sampleTime[timeFlag++] = difTime;
+                if(timeFlag > 9)timeFlag=0;
+            }       
+            if(0 == sampleTime[9]){
+                Serial.println("Wait for valid data !");
+                return(0);
+            }
+
+            uint32_t Arrange[10]={0};
+            for(int i=0;i<10;i++){
+                Arrange[i] = sampleTime[i];
+            }
+            uint32_t Arrange_=0;
+            for(int i=9;i>0;i--){
+                for(int j=0;j<i;j++){
+                    if(Arrange[j] > Arrange[j+1]){
+                    Arrange_ = Arrange[j];
+                    Arrange[j] = Arrange[j+1];
+                    Arrange[j+1] = Arrange_;
+                    }
+                }
+            }
+            if((Arrange[7]-Arrange[3])>120){
+                Serial.println("Wait for valid data !");
+                return(0);
+            }
+
+            Arrange_ = 0;
+            for(int i=3;i<=7;i++){
+                Arrange_ += Arrange[i];
+            }
+
+            valueTime_ = 300000/Arrange_;   // 60*1000*(7-2)
+            return((uint16_t)valueTime_);
+        }
+        return(0);
+
+    }
 
