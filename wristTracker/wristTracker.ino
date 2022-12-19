@@ -2,20 +2,18 @@
 #include <Adafruit_MPU6050.h>
 #include "DFRobot_Heartrate.h"
 
+
 // macros
 #define heartRatePin A1
-#define mpuPin0 
-#define mpuPin1 
+#define mpuPinSCL A5
+#define mpuPinSDA A4
 #define batteryPin 13 
 
 DFRobot_Heartrate heartRate(DIGITAL_MODE);   // ANALOG_MODE or DIGITAL_MODE
 
-const int heartThreshold = 800;
-const int NUM_SAMPLES = 1530;
-
 Adafruit_MPU6050 motionTracker;
-int maxHeartRate, minHeartRate;
-int maxTemp, minTemp;                       // TEMP IN FARENHEIT
+uint8_t maxHeartRate, minHeartRate;
+uint8_t maxTemp, minTemp;                       // TEMP IN FARENHEIT
 bool newNight = true;
 sensors_event_t accel, gyro, temp;
 
@@ -23,34 +21,63 @@ void setup() {
   // put your setup code here, to run once:
   pinMode(batteryPin, OUTPUT);
   Serial.begin(9600);
+
+  pinMode(mpuPinSCL, INPUT);
+  pinMode(mpuPinSDA, INPUT);
+
+  motionTracker.setAccelerometerRange(MPU6050_RANGE_8_G);
+  motionTracker.setGyroRange(MPU6050_RANGE_500_DEG);
+  motionTracker.setFilterBandwidth(MPU6050_BAND_21_HZ);
+  motionTracker.setHighPassFilter(MPU6050_HIGHPASS_5_HZ);
+
+  if (!motionTracker.begin()) {
+    Serial.println("Failed to find MPU6050 chip");
+    while (1) {
+      delay(30);
+    }
+  }
 }
 
 void loop() {
+  Serial.println("Hello");
   // put your main code here, to run repeatedly:
-  //digitalWrite(batteryPin, LOW);
+  // digitalWrite(batteryPin, LOW);
 
-  // if (newNight){
-  //   int initHeartRate = heartRate.getRate();
-  //   maxHeartRate = initHeartRate;
-  //   minHeartRate = initHeartRate;
+  if (newNight){
+    int initHeartRate = heartRate.getRate();
+    maxHeartRate = initHeartRate;
+    minHeartRate = initHeartRate;
 
-  //   motionTracker.getEvent(&accel, &gyro, &temp);
-  //   float initTemp = (temp.temperature * 9/5) + 32;
-  //   maxTemp = initTemp;
-  //   minTemp = initTemp;
+    motionTracker.getEvent(&accel, &gyro, &temp);
+    //float initTemp = (temp.temperature * 9/5) + 32;
+    //maxTemp = initTemp;
+    //minTemp = initTemp;
 
-  //   newNight = false;
-  // }
-  //motionTracker.getEvent(&accel, &gyro, &temp);
+    newNight = false;
+  }
+  // motionTracker.getEvent(&accel, &gyro, &temp);
 
+  //Serial.println();
   //Serial.println("Temp: " + (String)tempRead());
-  Serial.println(heartRead());
-  delay(5*1000);
+  Serial.println("HR: " + (String)heartRead());
+  motionRead();
+  delay(2000);
+  
 }
 
 void motionRead(){
   motionTracker.getEvent(&accel, &gyro, &temp);
 
+  Serial.println("X: " + (String)accel.acceleration.x);
+  Serial.println("Y: " + (String)accel.acceleration.y);
+  Serial.println("Z: " + (String)accel.acceleration.z);
+  Serial.println();
+  Serial.println("X: " + (String)gyro.gyro.x);
+  Serial.println("Y: " + (String)gyro.gyro.y);
+  Serial.println("Z: " + (String)gyro.gyro.z);
+  //Serial.println();
+  //Serial.println("Temp: " + (String)(temp.temperature * 9/5 + 32));
+  Serial.println();
 }
 
 /**
@@ -75,39 +102,23 @@ int tempRead(){
   Reads heart rate and sets max and min values of heart rate if the current rate is higher or lower. respectively
   @return current heart rate
 */
-int heartRead(){
-  int rate;
-  
-  int values[NUM_SAMPLES];
-  
-  while (analogRead(heartRatePin) < heartThreshold*.75);
-  int risingEdges = 1;
+int16_t heartRead(){
+  int8_t rateValue = -1;
+  long startTime = millis();
+  int timeOut = 15*1000;
 
-  uint32_t startTime = millis();
+  do {  
+    heartRate.getValue(heartRatePin);   // A1 foot sampled values
+    rateValue = heartRate.getRate();   // Get heart rate value  
+    delay(20);
+  } while((millis()-startTime < timeOut) && (rateValue <= 0));
 
-  for (int i=0; i<NUM_SAMPLES; i++){
-    int currVal = analogRead(heartRatePin);
-    if (currVal < heartThreshold*.75){
-      values[i] = 0;
-    } else{
-      values[i] = 1;
-    }
-    delay(10);
+  if (rateValue > maxHeartRate){
+    maxHeartRate = rateValue;
+  }
+  if (rateValue < minHeartRate){
+    minHeartRate = rateValue;  
   }
 
-  uint32_t endTime = millis();
-
-  for (int i=1; i<NUM_SAMPLES; i++){
-    if (values[i] > values[i-1]){
-      risingEdges++;
-    }
-  }
-  
-  double seconds = (endTime-startTime)/1000.0;
-  Serial.println("Seconds: " + (String)seconds);
-  Serial.println("Edges: " + (String)risingEdges);
-
-  rate = 60*risingEdges/seconds;
-
-  return rate;
+  return rateValue;
 }

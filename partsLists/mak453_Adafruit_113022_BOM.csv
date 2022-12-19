@@ -1,0 +1,6 @@
+Quantity,Link,Description,Pitt User ID,Unit Price,Extended Price USD
+1,https://www.adafruit.com/product/3720,Solar Digital Calipers,mak453,14.95,14.95
+1,https://www.adafruit.com/product/3013 ,Adafruit DS3231 Precision RTC Breakout,mak453,17.5,17.5
+3,https://www.adafruit.com/product/380 ,CR1220 12mm Diameter - 3V Lithium Coin Cell Battery - CR1220,mak453,0.95,2.85
+3,https://www.adafruit.com/product/2830 ,Stacking Headers for Feather - 12-pin and 16-pin female headers,mak453,1.25,3.75
+3,https://www.adafruit.com/product/85 ,Shield stacking headers for Arduino (R3 Compatible),mak453,1.95,5.85
